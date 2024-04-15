@@ -160,7 +160,8 @@ function drawing(){
   t27 = [GRAY, 0.2, 0.1, 0.3, 0.1, 0.2, 0.2 ];
   t28 = [GRAY, -0.3, -0.2, -0.3, -0.1, -0.2, -0.2 ];
   t29 = [GRAY, 0.1, -0.1, 0.1, -0.2, 0.2, -0.2 ];
-  drawingList.push(t25, t26, t27, t28, t29);
+  t30 = [GRAY, -0.2, -0.4, -0.1, -0.4, -0.2, -0.3 ];
+  drawingList.push(t25, t26, t27, t28, t29, t30);
 
   renderDrawing();
 
