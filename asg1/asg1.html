@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CSE160 Assignment1: Change a point color</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="Point.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Circle.js"></script>
+    <script src="asg1.js"></script>
+    
+    <p>
+    <button type="button" id="clear">Clear Canvas</button>
+
+    <p>
+    Drawing Mode:
+    <br>
+    <button type="button" id="point">point</button>
+    <button type="button" id="triangle">triangle</button>
+    <button type="button" id="circle">circle</button>
+   
+    <p>
+    Shape Color:
+    <br>
+    Red <input type="range" min="0" max='100' class="slider" id="redslide">
+    Green <input type="range" min="0" max='100' class="slider" id="greenslide">
+    Blue <input type="range" min="0" max='100' class="slider" id="blueslide">
+    <p>
+    Shape Size: <input type="range" min="0" max='100' class="slider" id="shapeslide">
+    (Circles)Segment Count: <input type="range" min="0" max='100' class="slider" id="countslide">
+    <p>
+    <!--<button type="button" id="draw">Draw a picture</button>-->
+    <input type="button" name="button" value="Draw a picture" onclick="drawing()"/>
+     
+    </body>
+</html>
