@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Three.js - Fundamentals 3 cubes</title>
+    <style>
+
+    </style>
+  </head>
+  <body>
+<canvas id="c"></canvas>
+  <script  type="importmap">{
+	"imports": {
+		"three": "https://threejs.org/build/three.module.js",
+        "three/addons/": "https://threejs.org/examples/jsm/"
+	}
+}</script>
+  </body>
+
+  <script type="module">
+// Three.js - Fundamentals 3 cubes
+// from https://threejs.org/manual/examples/fundamentals-3-cubes.html
+
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+
+function main() {
+
+	const canvas = document.querySelector( '#c' );
+	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
+
+    // 1. Create camera
+	const fov = 75; // field of view
+	const aspect = 2; // the canvas default
+	const near = 0.1;
+	const far = 100;
+	const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+	camera.position.set (0, 10, 20); // Camera location at z coordinate of 2
+
+    // Orbit Controls
+    const controls = new OrbitControls( camera, canvas );
+	controls.target.set( 0, 5, 0 );
+	controls.update();
+
+    // 2. Initialize Scene
+	const scene = new THREE.Scene();
+    scene.background = new THREE.Color( 'gray' );
+    
+    // Create a plane
+    {
+
+    const planeSize = 40;
+
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load( 'https://threejs.org/manual/examples/resources/images/checker.png' );
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter = THREE.NearestFilter;
+    const repeats = planeSize / 2;
+    texture.repeat.set( repeats, repeats );
+
+    const planeGeo = new THREE.PlaneGeometry( planeSize, planeSize );
+    const planeMat = new THREE.MeshPhongMaterial( {
+        map: texture,
+        side: THREE.DoubleSide,
+    } );
+    const mesh = new THREE.Mesh( planeGeo, planeMat );
+    mesh.rotation.x = Math.PI * - .5;
+    scene.add( mesh );
+
+    }
+
+    {
+        // HemisphereLight
+    const skyColor = 0xB1E1FF; // light blue
+    const groundColor = 0xB97A20; // brownish orange
+    const intensity = 2;
+    const light = new THREE.HemisphereLight( skyColor, groundColor, intensity );
+    scene.add( light );
+
+    }
+	{
+        // Defin Directional light
+		const color = 0xFFFFFF;
+		const intensity = 3;
+		const light = new THREE.DirectionalLight( color, intensity );
+        light.position.set( 0, 10, 0 );
+        light.target.position.set(-5, 0, 0);
+		scene.add( light );
+        scene.add( light.target );
+
+	}
+
+    // 4. Define Geometry (for Cube)
+	const boxWidth = 1;
+	const boxHeight = 1;
+	const boxDepth = 1;
+	const geometry = new THREE.BoxGeometry( boxWidth, boxHeight, boxDepth );
+
+    
+    const cubes = []; // just an array we can use to rotate the cubes
+	const loader = new THREE.TextureLoader();
+
+	const materials = [
+		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://media.cnn.com/api/v1/images/stellar/prod/210226040722-01-pokemon-anniversary-design.jpg?q=w_1920,h_1080,x_0,y_0,c_fill' ) } ),
+		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://st5.depositphotos.com/69470920/64242/v/450/depositphotos_642420756-stock-illustration-charizard-pokemon-anime-vector-illustration.jpg' ) } ),
+		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://3.bp.blogspot.com/-7tOnI47ycvM/V5xCQo-PLBI/AAAAAAAACMc/mwvTcj-5BIMB9zTIDmAXf0KaewZQ0QvQwCLcB/s1600/d10.jpg' ) } ),
+		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://media.cnn.com/api/v1/images/stellar/prod/210226041654-05-pokemon-anniversary-design.jpg?q=w_1920,h_1080,x_0,y_0,c_fill' ) } ),
+		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSIQhzgEnTfEPEuWAlEQHM30TY60HEZdCPFWMN-4ZtXlhTOa6kQMCe8rhJtRXpMrNta9c&usqp=CAU' ) } ),
+		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvaPiEYkIw7EVbnD_hwyM-owEF5uz3UGYpgjLSkJ6V54adSwfqS2ML0vZHHoAMnlKD8SE&usqp=CAU' ) } ),
+	];
+	const cube = new THREE.Mesh( geometry, materials );
+	scene.add( cube );
+    cube.position.set(-5, 2, 0);
+	cubes.push( cube ); // add to our list of cubes to rotate
+
+    {
+        // OBJ loader
+    const objLoader = new OBJLoader();
+    objLoader.load( 'poké-ball.obj', ( root ) => {
+
+        scene.add( root );
+
+    } );
+
+}
+    function resizeRendererToDisplaySize( renderer ) {
+
+    const canvas = renderer.domElement;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if ( needResize ) {
+
+        renderer.setSize( width, height, false );
+
+    }
+    return needResize;
+    }
+
+    function loadColorTexture( path ) {
+
+    const texture = loader.load( path );
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+
+    }
+
+    // 7. Render and loop
+	function render( time ) {
+
+		time *= 0.001; // convert time to seconds
+
+        if ( resizeRendererToDisplaySize( renderer ) ) {
+
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+
+        }
+
+		cubes.forEach( ( cube, ndx ) => {
+
+			const speed = .5 + ndx * .1;
+			const rot = time * speed;
+			cube.rotation.x = rot;
+			cube.rotation.y = rot;
+
+		} );
+
+		renderer.render( scene, camera );
+
+		requestAnimationFrame( render );
+
+	}
+
+	requestAnimationFrame( render );
+
+}
+
+main();
+
+  </script>
+
+</html>

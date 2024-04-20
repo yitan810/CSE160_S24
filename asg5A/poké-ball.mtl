@@ -1,0 +1,60 @@
+# Blender 4.1.1 MTL File: 'poké-ball.blend'
+# www.blender.org
+
+newmtl Bottom
+Ka 0.475000 0.475000 0.475000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Metal016_4K_Color.jpg
+map_Ns Metal016_4K_Roughness.jpg
+map_refl Metal016_4K_Color.jpg
+map_Bump -bm 3.000000 Metal016_4K_Normal.jpg
+
+newmtl Button
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Metal010_4K_Color.jpg
+map_Ns Metal010_4K_Roughness.jpg
+map_refl Metal010_4K_Color.jpg
+map_Bump -bm 1.000000 Metal010_4K_Normal.jpg
+
+newmtl Inner
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Metal027_4K_Color.jpg
+map_Ns Metal027_4K_Roughness.jpg
+map_refl Metal027_4K_Color.jpg
+map_Bump -bm 1.000000 Metal027_4K_Normal.jpg
+
+newmtl Light
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Top
+Ka 0.508333 0.508333 0.508333
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd PaintedMetal004_4K_Color.jpg
+map_Ns PaintedMetal004_4K_Roughness.jpg
+map_refl PaintedMetal004_4K_Color.jpg
+map_Bump -bm 3.000000 PaintedMetal004_4K_Normal.jpg
