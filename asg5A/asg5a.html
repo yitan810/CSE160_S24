@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Three.js - Fundamentals 3 cubes</title>
     <style>
-
+        html, body {
+            margin: 0;
+            height: 100%;
+        }
+        #c {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
     </style>
   </head>
   <body>
@@ -25,32 +33,85 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 function main() {
 
 	const canvas = document.querySelector( '#c' );
 	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
 
-    // 1. Create camera
+    // Camera --------------------------------------------------------------------------------------------
 	const fov = 75; // field of view
 	const aspect = 2; // the canvas default
 	const near = 0.1;
-	const far = 100;
+	const far = 50;
 	const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-	camera.position.set (0, 10, 20); // Camera location at z coordinate of 2
+	camera.position.set (0, 5, 20); // Camera location at z coordinate of 2
+    
+    class MinMaxGUIHelper {
+        // GUI for camera
+        constructor( obj, minProp, maxProp, minDif ) {
 
-    // Orbit Controls
+            this.obj = obj;
+            this.minProp = minProp;
+            this.maxProp = maxProp;
+            this.minDif = minDif;
+
+        }
+        get min() {
+
+            return this.obj[ this.minProp ];
+
+        }
+        set min( v ) {
+
+            this.obj[ this.minProp ] = v;
+            this.obj[ this.maxProp ] = Math.max( this.obj[ this.maxProp ], v + this.minDif );
+
+        }
+        get max() {
+
+            return this.obj[ this.maxProp ];
+
+        }
+        set max( v ) {
+
+            this.obj[ this.maxProp ] = v;
+            this.min = this.min; // this will call the min setter
+
+        }
+    }
+
+    function updateCamera() {
+
+        camera.updateProjectionMatrix();
+
+    }
+
+    const gui = new GUI();
+    const folder1 = gui.addFolder('Camera');
+    folder1.add( camera, 'fov', 1, 180 ).onChange( updateCamera );
+    const minMaxGUIHelper = new MinMaxGUIHelper( camera, 'near', 'far', 0.1 );
+    folder1.add( minMaxGUIHelper, 'min', 0.1, 50, 0.1 ).name( 'near' ).onChange( updateCamera );
+    folder1.add( minMaxGUIHelper, 'max', 0.1, 50, 0.1 ).name( 'far' ).onChange( updateCamera );
+
+
+
+    // Orbit Controls for camera
     const controls = new OrbitControls( camera, canvas );
 	controls.target.set( 0, 5, 0 );
 	controls.update();
 
-    // 2. Initialize Scene
+    // Initialize Scene --------------------------------------------------------------------------------------------
+ 
 	const scene = new THREE.Scene();
     scene.background = new THREE.Color( 'gray' );
     
-    // Create a plane
+    /*
+   // Plane --------------------------------------------------------------------------------------------------------
     {
-
+        // Create a plane
     const planeSize = 40;
 
     const loader = new THREE.TextureLoader();
@@ -72,39 +133,92 @@ function main() {
     scene.add( mesh );
 
     }
+    */
 
+    // Ambient Light--------------------------------------------------------------------------------------------
+    class ColorGUIHelper {
+
+        constructor( object, prop ) {
+
+            this.object = object;
+            this.prop = prop;
+
+        }
+        get value() {
+
+            return `#${this.object[ this.prop ].getHexString()}`;
+
+        }
+        set value( hexString ) {
+
+            this.object[ this.prop ].set( hexString );
+
+        }
+    }
     {
-        // HemisphereLight
-    const skyColor = 0xB1E1FF; // light blue
-    const groundColor = 0xB97A20; // brownish orange
-    const intensity = 2;
-    const light = new THREE.HemisphereLight( skyColor, groundColor, intensity );
-    scene.add( light );
+        // Initialize Ambient Light
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        const light = new THREE.AmbientLight( color, intensity );
+        scene.add( light );
+
+        const folder2 = gui.addFolder('Ambient Light');
+        folder2.addColor( new ColorGUIHelper( light, 'color' ), 'value' ).name( 'color' );
+        folder2.add( light, 'intensity', 0, 5, 0.01 );
 
     }
+
+    // Hemisphere Light--------------------------------------------------------------------------------------------
+ 
+    {
+        // HemisphereLight
+        const skyColor = 0xB1E1FF; // light blue
+        const groundColor = 0xB97A20; // brownish orange
+        const intensity = 2;
+        const light = new THREE.HemisphereLight( skyColor, groundColor, intensity );
+        scene.add( light );
+
+        const folder4 = gui.addFolder('Hemisphere Light');
+		folder4.addColor( new ColorGUIHelper( light, 'color' ), 'value' ).name( 'skyColor' );
+		folder4.addColor( new ColorGUIHelper( light, 'groundColor' ), 'value' ).name( 'groundColor' );
+		folder4.add( light, 'intensity', 0, 5, 0.01 );
+
+    }
+
+    // Directional Light --------------------------------------------------------------------------------------------
+ 
 	{
         // Defin Directional light
 		const color = 0xFFFFFF;
 		const intensity = 3;
 		const light = new THREE.DirectionalLight( color, intensity );
         light.position.set( 0, 10, 0 );
-        light.target.position.set(-5, 0, 0);
+        light.target.position.set(0, -2, 0);
 		scene.add( light );
         scene.add( light.target );
 
+        //const gui = new GUI();
+        const folder3 = gui.addFolder('Directional Light (Targeting Mudkip)');
+		folder3.addColor( new ColorGUIHelper( light, 'color' ), 'value' ).name( 'color' );
+		folder3.add( light, 'intensity', 0, 5, 0.01 );
+		folder3.add( light.target.position, 'x', - 10, 10, .01 );
+		folder3.add( light.target.position, 'z', - 10, 10, .01 );
+		folder3.add( light.target.position, 'y', 0, 10, .01 );
+
+
 	}
 
-    // 4. Define Geometry (for Cube)
-	const boxWidth = 1;
-	const boxHeight = 1;
-	const boxDepth = 1;
-	const geometry = new THREE.BoxGeometry( boxWidth, boxHeight, boxDepth );
+    // Cube --------------------------------------------------------------------------------------------
+ 
+    // Define Geometry (for Cube)
+	const boxSize = 3;
+	const geometry = new THREE.BoxGeometry( boxSize, boxSize, boxSize );
 
     
     const cubes = []; // just an array we can use to rotate the cubes
 	const loader = new THREE.TextureLoader();
 
-	const materials = [
+	const materials = [ //List of Pokemon textures
 		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://media.cnn.com/api/v1/images/stellar/prod/210226040722-01-pokemon-anniversary-design.jpg?q=w_1920,h_1080,x_0,y_0,c_fill' ) } ),
 		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://st5.depositphotos.com/69470920/64242/v/450/depositphotos_642420756-stock-illustration-charizard-pokemon-anime-vector-illustration.jpg' ) } ),
 		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://3.bp.blogspot.com/-7tOnI47ycvM/V5xCQo-PLBI/AAAAAAAACMc/mwvTcj-5BIMB9zTIDmAXf0KaewZQ0QvQwCLcB/s1600/d10.jpg' ) } ),
@@ -112,21 +226,156 @@ function main() {
 		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSIQhzgEnTfEPEuWAlEQHM30TY60HEZdCPFWMN-4ZtXlhTOa6kQMCe8rhJtRXpMrNta9c&usqp=CAU' ) } ),
 		new THREE.MeshBasicMaterial( { map: loadColorTexture( 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvaPiEYkIw7EVbnD_hwyM-owEF5uz3UGYpgjLSkJ6V54adSwfqS2ML0vZHHoAMnlKD8SE&usqp=CAU' ) } ),
 	];
-	const cube = new THREE.Mesh( geometry, materials );
-	scene.add( cube );
-    cube.position.set(-5, 2, 0);
-	cubes.push( cube ); // add to our list of cubes to rotate
 
+    function MakeCubes( geometry, texture, x, y, z){
+        //const material
+        const cube = new THREE.Mesh( geometry, texture );
+        scene.add( cube );
+        cube.position.set(x, y, z);
+        cubes.push( cube );
+    }
+
+    {   
+        MakeCubes(geometry, materials, -15, 2, 0);
+        MakeCubes(geometry, materials, 15, 2, 0);
+
+        const gray = new THREE.MeshPhongMaterial( { color:0x34393c } );
+        MakeCubes(geometry, gray, 0, 2, -15);
+        MakeCubes(geometry, gray, 0, 2, 15);
+        const red = new THREE.MeshPhongMaterial( { color:0xf83f3f } );
+        MakeCubes(geometry, red, -7.5, 2, -7.5);
+        MakeCubes(geometry, red, 7.5, 2, 7.5);
+        const lightyellow = new THREE.MeshPhongMaterial( { color:0xf5e8d0 } );
+        MakeCubes(geometry, lightyellow, 7.5, 2, -7.5);
+        MakeCubes(geometry, lightyellow, -7.5, 2, 7.5);
+    }   
+
+    // Load Color Texture for objects ------------------------------------------------------------------------------
+ 
+    function loadColorTexture( path ) {
+
+        const texture = loader.load( path );
+        texture.colorSpace = THREE.SRGBColorSpace;
+        return texture;
+
+    }
+
+    // Sphere ----------------------------------------------------------------------------------------------------
+	
+    
+        const spheres = [];
+
+        const sphereRadius = 1.2;
+        const sphereWidthDivisions = 32;
+        const sphereHeightDivisions = 16;
+        const sphereGeo = new THREE.SphereGeometry( sphereRadius, sphereWidthDivisions, sphereHeightDivisions );
+        const sphereMat = new THREE.MeshPhongMaterial( { map: loadColorTexture('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARwAAACxCAMAAAAh3/JWAAAAz1BMVEX////+AAIBAQEAAAC8vLxkAgb+AAD6+voFBQX7AADw8PD09PQAAwTh4eH4+PgAAQXp6emAgICYmJhfX18VFRUhISGQkJCkpKTNzc1XV1dAQECurq4zMzNycnK2trZqamqUlJTfREO/opfLfXy4i4DLjYLAWVrid23uAALiT1HKgX7Uf4HTc3PfamTagH7MjInkZF/ZCQirBgV+BwprAwaABQjPBwyeCAgxBQYSBAQlAwNBAwYaAgA4BgXsDBGwCw/FEBJcBgo5OTkqKirT09OCWwbgAAAEEklEQVR4nO3cCXPaRhiA4ZUW60ACBMYcBozbJK17N4mPOk5JQ/z/f1O/Fb6orY/CeLJq/T4GY0DK7LxeXWTGJkAl43sAdUacx6LbH4izJk3lJt+C8k6cNRImklu0ykOcNek33756/ea7V9+fSB7iPBAFUfrDjz/9/Muvv/2eEuexSDYpuUcBcZ6SlrfykEUcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR0EcBXEUxFEQR1GjOFH5d4/Kx/T+z9H5VJc4aRSkb9+9f396enZx7tqkvkcU1CdOcHLxRycP8zzvdDqXZ4taTJ0axJFZEqXvPuR5EoaJpLFh3snPTmoweWoQR9os9nIbytdKaGX6XL31P3nqECdaXOVh6NIcdAeDseuT5J3Lc9/j8hzHHZhk3lx1kiSxybAwpZH0SZL847nvqeN95sj+Zi8PE2u7sXRptspAo76r8+ci8rvb8RunPGZ/ynPZpBpSpnfgNqnxSH48tGGSn3reJfueOWm6+CgHKTsxpmHHjSzLip4dZyaeyn4n/8vv4HzHCYKLXGbLzJihHa12OSae95umJVOnc+p3aGbPs88fOrJRNWXeyN4mvsnT/WLMQKbO5WevYzN2e3Ieu93yYVj5lrsndmCyu3lTOjw2hU1s9XrbjWDr5VdMWAO2ZSb7D9vIRhWbfZt4Htcucez993/3o7X/eGv9n7OyER2uTRx53jAT+8TCd+tsO4QnR75h3RrMHGv3TduutzGDrsye6jhfRw3ihHb+OM7R7MXEUXcetjLOVxpApd3ibDlsffHkqc1quGGz2jbcTjv3nXbIcpW45fLau6GdxmZ6vR5n3JCzQlvZ4FlHUGmX8xwX59mWdzNezv+Ou3dngE5TXprJb7tqxeccQbWd4jwvGXhPTgKLh3HmM3lF4vgdmWl4dtSXM+F+2wwP2vdtJnI90XNthl7HZrybSxy5fjCzZfP2paGcMhfuV9f3ObA6aLkty32c07PH7pOueLTsy+PSxZn4Hpx3cxfHXXcWM2sP+nY6NHE2dhedX+J48+r/b1kZR3bKxrSL0XUmj9fL8mJ9tGnVF2C0OjYsj7LV89bMlptaz5gXP3PcDvjmTGTc7R3PD2+ezHwPqyYmdu2EL3HbWdf3oGqjNXVJbj8xdA81OMmoj2H/4blpN/M9nnppN/bL/7ay/fGkuXnxl0UOTHFRFK2ivXlZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMB/2N9PoaHcdyXSSQAAAABJRU5ErkJggg==') } );
+        
+        function makePokeball(x, y, z){
+            const sphere = new THREE.Mesh( sphereGeo, sphereMat );
+            sphere.position.set(x, y, z);
+            sphere.rotation.set(0, -2, 0);
+            scene.add( sphere );
+            spheres.push(sphere);
+        }
+        
+        makePokeball(11.25, 4, -3.75 );
+        makePokeball(-11.25, 4, -3.75 );
+        makePokeball(-3.75, 4, -11.25 );
+        makePokeball(3.75, 4, -11.25 );
+        makePokeball(3.75, 4, 11.25);
+        makePokeball(-3.75, 4, 11.25);
+        makePokeball(11.25, 4, 3.75);
+        makePokeball(-11.25, 4,3.75);
+    
+    // Cylinder ------------------------------------------------------------------------------------------------
+    const geometry1 = new THREE.CylinderGeometry( 5, 5, 1, 32 ); 
+    const material = new THREE.MeshBasicMaterial( {color:0x2233FF } ); 
+    const cylinder1 = new THREE.Mesh( geometry1, material ); 
+    cylinder1.position.set(0, 0, 0);
+    scene.add( cylinder1 );
+    
+    const geometry2 = new THREE.CylinderGeometry( 3.8, 3.8, 1, 32 );
+    const material2 = new THREE.MeshBasicMaterial( {color: 0x000000} ); 
+    const cylinder2 = new THREE.Mesh( geometry2, material2 ); 
+    cylinder2.position.set(0, 1, 0);
+    scene.add( cylinder2 );
+
+    const geometry3 = new THREE.CylinderGeometry( 3, 3, 1, 32 );
+    const material3 = new THREE.MeshBasicMaterial( {color:0xffffff } ); 
+    const cylinder3 = new THREE.Mesh( geometry3, material3 ); 
+    cylinder3.position.set(0, 2, 0);
+    scene.add( cylinder3 );
+    
+
+            
+    // polygon -------------------------------------------------------------------------------------------------
+	const objects = [];
+
+	const radius = 0.5;
+	const widthSegments = 6;
+	const heightSegments = 6;
+	const sphereGeometry = new THREE.SphereGeometry(
+		radius, widthSegments, heightSegments );
+
+	const sunMaterial = new THREE.MeshPhongMaterial( { emissive: 0xFFFF00 } );
+	const sunMesh = new THREE.Mesh( sphereGeometry, sunMaterial );
+	sunMesh.scale.set( 5, 5, 5 );
+    sunMesh.position.set( 0, 15, 0);
+	scene.add( sunMesh );
+	objects.push( sunMesh );
+
+    const radius1 = 0.3;
+	const sphereGeometry1 = new THREE.SphereGeometry(
+		radius1, widthSegments, heightSegments );
+	const earthMaterial = new THREE.MeshPhongMaterial( { color: 0x2233FF, emissive: 0x112244 } );
+	const earthMesh = new THREE.Mesh( sphereGeometry1, earthMaterial );
+	earthMesh.position.x = 5;
+    earthMesh.position.y = 0;
+	sunMesh.add( earthMesh );
+	objects.push( earthMesh );
+
+    // Skybox -----------------------------------------------------------------------------------------------
     {
-        // OBJ loader
-    const objLoader = new OBJLoader();
-    objLoader.load( 'poké-ball.obj', ( root ) => {
 
-        scene.add( root );
+        const loader = new THREE.TextureLoader();
+        const texture = loader.load(
+            'https://threejs.org/manual/examples/resources/images/equirectangularmaps/tears_of_steel_bridge_2k.jpg',
+            () => {
 
-    } );
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+                texture.colorSpace = THREE.SRGBColorSpace;
+                scene.background = texture;
+
+        } );
+
+    }
+    // OBJ 3D Model --------------------------------------------------------------------------------------------
+ 
+    {
+        // Load OBJ file and its color 
+        const mtlLoader = new MTLLoader();
+		mtlLoader.load( 'https://yitan810.github.io/CSE160_S24/asg5A/Mudkip.mtl', ( mtl ) => {
+            
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            mtl.materials.C2.side = THREE.DoubleSide;
+            objLoader.setMaterials( mtl );
+            objLoader.load( 'https://yitan810.github.io/CSE160_S24/asg5A/Mudkip.obj', ( root ) => {
+                
+                scene.add( root );
+                root.position.set(0, -0.5, 1);
+                root.rotation.set(0, 1.5, 0);
+
+            } );
+       
+        } );
+       
 
 }
+
+// Render ---------------------------------------------------------------------------------------------------------
+
     function resizeRendererToDisplaySize( renderer ) {
 
     const canvas = renderer.domElement;
@@ -141,15 +390,9 @@ function main() {
     return needResize;
     }
 
-    function loadColorTexture( path ) {
 
-    const texture = loader.load( path );
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-
-    }
-
-    // 7. Render and loop
+    let up = true;
+    // Render and loop -------------------------------------------------------------------------------------------------
 	function render( time ) {
 
 		time *= 0.001; // convert time to seconds
@@ -170,6 +413,29 @@ function main() {
 			cube.rotation.y = rot;
 
 		} );
+
+        spheres.forEach((sphere, ndx) =>{
+            if (sphere.position.y <= 7 && up){
+
+                sphere.position.y += 0.1;
+
+                if(sphere.position.y > 7){up = false; sphere.position.y = 7}
+                //console.log(up, sphere.position.y);
+
+            }else if(sphere.position.y >= -1 && !up){
+                
+                sphere.position.y -=  0.1;
+
+                if(sphere.position.y < -1){up = true; sphere.position.y = -1;}
+                
+            }
+        } );
+
+        objects.forEach( ( obj ) => {
+
+            obj.rotation.y = time;
+
+        } );
 
 		renderer.render( scene, camera );
 
