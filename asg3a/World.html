@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <title>Assignment 3: Creating a Virtual World</title>
+    </head>
+
+    <body onload="main()">
+      <canvas id="webgl" width="400" height="400">
+      Please use a browser that supports "canvas"
+      </canvas>
+
+      <script src="lib/webgl-utils.js"></script>
+      <script src="lib/webgl-debug.js"></script>
+      <script src="lib/cuon-utils.js"></script>
+      <script src="lib/cuon-matrix-cse160.js"></script>
+      <script src="World.js"></script>
+      <script src="Triangle.js"></script>
+      <script src="Cube.js"></script>
+      <script src="Cone.js"></script>
+      <Script src="camera.js"></script>
+
+      <div>
+
+          <p>
+            Camera Angle <input type="range" min="-180" max="180" value="-30" class="slider" id="angleSlide">
+          </p>
+
+          <p> 
+            <b>Key commands:</b>
+              <br>W - move the camera forward;
+              <br>A - move the camera to the left;
+              <br>S - move the camera backwards;
+              <br>D - move the camera to the right;
+              <br>Q - rotate left 
+              <br>E - rotate right
+              <br>N - add new block 
+              <br>Backsapce key - delete the block that last added</br> 
+
+      </div>
+
+    </body>
+</html>
