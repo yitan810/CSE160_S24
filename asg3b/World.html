@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <title>Assignment 3B: Creating a Virtual World</title>
+    </head>
+
+    <body onload="main()">
+      <canvas id="webgl" width="400" height="400">
+      Please use a browser that supports "canvas"
+      </canvas>
+
+      <script src="lib/webgl-utils.js"></script>
+      <script src="lib/webgl-debug.js"></script>
+      <script src="lib/cuon-utils.js"></script>
+      <script src="lib/cuon-matrix-cse160.js"></script>
+      <script src="World copy.js"></script>
+      <script src="Triangle copy.js"></script>
+      <script src="Cube copy.js"></script>
+      <script src="Cone copy.js"></script>
+      <Script src="Camera copy.js"></script>
+
+      <div>
+        <p>
+           <p id="htmlID"> XXX </p>
+          <br><b>Add More Blocks to Activiate the Animal</b></br>
+          <br>You first look at the top of the tower,
+          <b>press S to zoom out  </b>to view the world</br>
+          <br>Animal will appear if 5 blocks or more are created</br>
+          <p>Press "W", "S", "A", "D", "Q", or "E" to get on same level as blocks.</p>
+        
+          <p>
+            Camera Angle <input type="range" min="-180" max="180" value="-30" class="slider" id="angleSlide">
+          </p>
+
+          <p> 
+            <b>Key commands:</b>
+              <br>W - move the camera forward;
+              <br>A - move the camera to the left;
+              <br>S - move the camera backwards;
+              <br>D - move the camera to the right;
+              <br>Q - rotate left 
+              <br>E - rotate right
+              <br>N - add new block
+              <br>Backsapce key - delete the block that last added</br> 
+
+          <br></br>
+
+          Animation:
+          <button type="button" id="animationRLOn">ON</button>
+          <button type="button" id="animationRLOff">OFF</button>
+          To stop the poke please press ON button then press OFF button.
+        </p>
+        <p>
+          Right Arm (UP-Down)<input type="range" min="45" max="135" value="135" class="slider" id="RArmSlide">
+          Right Hand <input type="range" min="80" max="120" value="90" class="slider" id="RHandSlide">
+        </p>
+        <p>
+          Left Arm (UP-Down)<input type="range" min="-45" max="45" value="45" class="slider" id="LArmSlide">
+          Left Hand <input type="range" min="80" max="120" value="90" class="slider" id="LHandSlide">
+        </p>
+        <p>
+          Belly<input type="range" min="-50" max="-35" value="-30" class="slider" id="BellySlide">
+        </p>
+        <p>
+          Right Leg<input type="range" min="160" max="180" value="180" class="slider" id="RLegSlide">
+          Right Foot<input type="range" min="5" max="20" value="5" class="slider" id="RFootSlide">
+        </p>
+        <p>
+          Left Leg<input type="range" min="160" max="180" value="180" class="slider" id="LLegSlide">
+          Left Foot<input type="range" min="5" max="20" value="5" class="slider" id="LFootSlide">
+        </p>
+      </div>
+
+    </body>
+</html>
